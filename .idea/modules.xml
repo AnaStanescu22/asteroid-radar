@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Asteroid_Radar.iml" filepath="$PROJECT_DIR$/.idea/modules/Asteroid_Radar.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Asteroid_Radar.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Asteroid_Radar.app.iml" />
+    </modules>
+  </component>
+</project>
