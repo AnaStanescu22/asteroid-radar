@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.udacity.asteroidradar.databinding.ItemAsteroidBinding
 import com.udacity.asteroidradar.model.Asteroid
 
-class AsteroidAdapter(private val clickListener: AdapterListener) :
+class AsteroidAdapter(private val clickListener: (asteroid: Asteroid) -> Unit) :
     RecyclerView.Adapter<AsteroidAdapter.ViewHolder>() {
 
 
@@ -37,15 +37,13 @@ class AsteroidAdapter(private val clickListener: AdapterListener) :
 
     inner class ViewHolder(private val binding: ItemAsteroidBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bindAsteroid(clickListener: AdapterListener, asteroid: Asteroid) {
+        fun bindAsteroid(clickListener: (asteroid: Asteroid) -> Unit, asteroid: Asteroid) {
             binding.asteroid = asteroid
-            binding.clickListener = clickListener
+            binding.root.setOnClickListener {
+                clickListener(asteroid)
+            }
             binding.executePendingBindings()
         }
-    }
-
-    class AdapterListener(val clickListener: (asteroid: Asteroid) -> Unit) {
-        fun onClick(asteroid: Asteroid) = clickListener(asteroid)
     }
 }
 

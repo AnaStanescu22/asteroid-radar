@@ -39,10 +39,9 @@ class MainFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        asteroidAdapter = AsteroidAdapter(AsteroidAdapter.AdapterListener { astreoid ->
-
-            viewModel.onAsteroidClicked(astreoid)
-        })
+        asteroidAdapter = AsteroidAdapter { asteroid ->
+            this.findNavController().navigate(MainFragmentDirections.actionShowDetail(asteroid))
+        }
 
         binding.asteroidRecycler.layoutManager = LinearLayoutManager(requireContext())
         binding.asteroidRecycler.adapter = asteroidAdapter
@@ -55,13 +54,6 @@ class MainFragment : Fragment() {
         viewModel.loadingState.onEach { isLoading ->
             binding.statusLoadingWheel.isVisible = isLoading
         }.launchIn(lifecycleScope)
-
-        viewModel.navigateToDetail.observe(viewLifecycleOwner) {
-            it?.let {
-                this.findNavController().navigate(MainFragmentDirections.actionShowDetail(it))
-                viewModel.onDetailNavigated()
-            }
-        }
     }
 
     override fun onDestroyView() {
