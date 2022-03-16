@@ -30,6 +30,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     val state = _state.asStateFlow()
 
+    private val _navigateToDetail: MutableLiveData<Asteroid?> =
+        MutableLiveData(null)
+    val navigateToDetail: LiveData<Asteroid?> = _navigateToDetail
+
     private val _picture: MutableLiveData<PictureState> =
         MutableLiveData(PictureState(null))
 
@@ -84,6 +88,15 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             null
         }
     }
+
+    fun onAsteroidClicked(asteroid: Asteroid) {
+        _navigateToDetail.value = asteroid
+    }
+
+    fun onDetailNavigated() {
+        _navigateToDetail.value = null
+    }
+
 }
 
 data class AsteroidState(val loading: Boolean, val asteroids: List<Asteroid>)

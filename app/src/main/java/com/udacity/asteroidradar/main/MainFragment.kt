@@ -6,14 +6,14 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
-import com.udacity.asteroidradar.model.Asteroid
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class MainFragment : Fragment(), AsteroidAdapter.AdapterListener {
+class MainFragment : Fragment() {
 
     private val viewModel: MainViewModel by lazy {
         ViewModelProvider(this).get(MainViewModel::class.java)
@@ -39,9 +39,14 @@ class MainFragment : Fragment(), AsteroidAdapter.AdapterListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        asteroidAdapter = AsteroidAdapter(this)
+        asteroidAdapter = AsteroidAdapter(AsteroidAdapter.AdapterListener { astreoid ->
+
+            viewModel.onAsteroidClicked(astreoid)
+        })
+
         binding.asteroidRecycler.layoutManager = LinearLayoutManager(requireContext())
         binding.asteroidRecycler.adapter = asteroidAdapter
+
 
         viewModel.state.onEach { asteroidState ->
             asteroidAdapter.setAsteroids(asteroidState.asteroids)
@@ -50,6 +55,13 @@ class MainFragment : Fragment(), AsteroidAdapter.AdapterListener {
         viewModel.loadingState.onEach { isLoading ->
             binding.statusLoadingWheel.isVisible = isLoading
         }.launchIn(lifecycleScope)
+
+        viewModel.navigateToDetail.observe(viewLifecycleOwner) {
+            it?.let {
+                this.findNavController().navigate(MainFragmentDirections.actionShowDetail(it))
+                viewModel.onDetailNavigated()
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -64,9 +76,5 @@ class MainFragment : Fragment(), AsteroidAdapter.AdapterListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return true
-    }
-
-    override fun myListener(asteroid: Asteroid) {
-        TODO("Not yet implemented")
     }
 }

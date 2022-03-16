@@ -24,8 +24,8 @@ class AsteroidRepository {
     interface Service {
         @GET("neo/rest/v1/feed/")
         suspend fun getAsteroids(
-            @Query("start_date") startDate: String = "2022-03-15",
-            @Query("end_date") endDate: String = "2022-03-22",
+            @Query("start_date") startDate: String = "2022-03-16",
+            @Query("end_date") endDate: String = "2022-03-23",
             @Query("api_key") apiKey: String = Constants.API_KEY
         ): JsonObject
 
