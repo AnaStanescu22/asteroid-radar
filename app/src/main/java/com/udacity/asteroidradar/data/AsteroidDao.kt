@@ -15,4 +15,9 @@ interface AsteroidDao {
     @Query("SELECT * from asteroid_table")
     suspend fun getAsteroids(): List<Asteroid>
 
+    @Query("SELECT * FROM asteroid_table WHERE closeApproachDate >= :startDay AND closeApproachDate <= :endDay ORDER BY closeApproachDate")
+    suspend fun getAsteroidsFromThisWeek(startDay: String, endDay: String): List<Asteroid>
+
+    @Query("SELECT * FROM asteroid_table WHERE closeApproachDate = :today ")
+    suspend fun getAsteroidToday(today: String): List<Asteroid>
 }

@@ -1,11 +1,9 @@
 package com.udacity.asteroidradar.main
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.google.gson.JsonParser
+import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.api.AsteroidRepository
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.data.AsteroidDao
@@ -20,6 +18,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
@@ -58,9 +58,29 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun updateFilter(filter: ApiFilter) {
+        viewModelScope.launch {
+            when (filter) {
+                ApiFilter.SHOW_WEEK -> {
+                    val asteroids =
+                        asteroidDao.getAsteroidsFromThisWeek(getToday(), getSevenDaysLater())
+                    _state.value = AsteroidState(false, asteroids)
+                }
+                ApiFilter.SHOW_TODAY -> {
+                    val asteroids = asteroidDao.getAsteroidToday(getToday())
+                    _state.value = AsteroidState(false, asteroids)
+                }
+                else -> {
+                    val asteroids = asteroidDao.getAsteroids()
+                    _state.value = AsteroidState(false, asteroids)
+                }
+            }
+        }
+    }
+
     private suspend fun getAsteroids(): List<Asteroid> = withContext(Dispatchers.IO) {
         try {
-            val response = repository.service.getAsteroids()
+            val response = repository.service.getAsteroids(getToday(), getSevenDaysLater())
             val gson = JsonParser().parse(response.toString()).asJsonObject
 
             val jo2 = JSONObject(gson.toString())
@@ -72,6 +92,21 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             e.printStackTrace()
             emptyList()
         }
+    }
+
+    private fun getToday(): String {
+        val calendar = Calendar.getInstance()
+        val currentTime = calendar.time
+        val dateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault())
+        return dateFormat.format(currentTime)
+    }
+
+    private fun getSevenDaysLater(): String {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, 7)
+        val currentTime = calendar.time
+        val dateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault())
+        return dateFormat.format(currentTime)
     }
 
     private suspend fun getPicture(): PictureOfDay? = withContext(Dispatchers.IO) {
@@ -89,3 +124,5 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 data class AsteroidState(val loading: Boolean, val asteroids: List<Asteroid>)
 
 data class PictureState(val picture: PictureOfDay?)
+
+enum class ApiFilter(val value: String) { SHOW_WEEK("week"), SHOW_TODAY("today"), SHOW_SAVED("saved") }
